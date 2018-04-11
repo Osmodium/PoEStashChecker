@@ -4,8 +4,10 @@ using System.Dynamic;
 using System.Net;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using POEStashChecker.Data;
+using POEStashChecker.UserControls;
 
-namespace POEStashChecker
+namespace POEStashChecker.Forms
 {
     public partial class frmStashInfo : Form
     {
@@ -90,8 +92,8 @@ namespace POEStashChecker
 #endif
             m_StashData = JsonConvert.DeserializeObject<ExpandoObject>(m_RawJson);
 
-            lbStash.Items.Clear();
-            lbStash.Visible = true;
+            flpItems.Controls.Clear();
+            flpItems.Visible = true;
 
             foreach (dynamic tab in m_StashData.tabs)
             {
@@ -110,7 +112,7 @@ namespace POEStashChecker
         private void ProcessItemLine(dynamic jsonItem)
         {
             Item item = new Item(jsonItem, m_League);
-            lbStash.Items.Add(item);
+            flpItems.Controls.Add(new ItemUserControl(item));
         }
         
     }

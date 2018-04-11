@@ -1,6 +1,8 @@
 ﻿using System.Dynamic;
+using POEStashChecker.NinjaDB;
+using POEStashChecker.Utility;
 
-namespace POEStashChecker
+namespace POEStashChecker.Data
 {
     public struct Item
     {
@@ -33,6 +35,7 @@ namespace POEStashChecker
         public bool Unique;
         public int MaxLinks;
         public Price Value;
+        public string IconUrl;
 
         public Item(dynamic item, string league)
         {
@@ -45,6 +48,7 @@ namespace POEStashChecker
             Unique = false;
             MaxLinks = 0;
             Value = new Price(0,0);
+            IconUrl = null;
             SetData(item, league);
         }
 
@@ -58,6 +62,7 @@ namespace POEStashChecker
             RawType = item.typeLine;
             Category = GetCategory(item);
             Value = PoENinjaDB.CheckItemPrice(this, league);
+            IconUrl = item.icon;
         }
 
         private string GetCategory(dynamic item)

@@ -1,4 +1,4 @@
-﻿namespace POEStashChecker
+﻿namespace POEStashChecker.Data
 {
     public struct Price
     {

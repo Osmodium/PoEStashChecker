@@ -49,28 +49,35 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions.cs" />
-    <Compile Include="frmMain.cs">
+    <Compile Include="UserControls\ItemUserControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ItemUserControl.Designer.cs">
+      <DependentUpon>ItemUserControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Utility\Extensions.cs" />
+    <Compile Include="Forms\frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMain.Designer.cs">
+    <Compile Include="Forms\frmMain.Designer.cs">
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="Item.cs" />
-    <Compile Include="PoENinjaDB.cs" />
-    <Compile Include="Price.cs" />
+    <Compile Include="Data\Item.cs" />
+    <Compile Include="NinjaDB\PoENinjaDB.cs" />
+    <Compile Include="Data\Price.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="frmStashInfo.cs">
+    <Compile Include="Forms\frmStashInfo.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmStashInfo.Designer.cs">
+    <Compile Include="Forms\frmStashInfo.Designer.cs">
       <DependentUpon>frmStashInfo.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="frmMain.resx">
+    <Compile Include="NinjaDB\SubDb.cs" />
+    <EmbeddedResource Include="Forms\frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmStashInfo.resx">
+    <EmbeddedResource Include="Forms\frmStashInfo.resx">
       <DependentUpon>frmStashInfo.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -83,6 +90,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="UserControls\ItemUserControl.resx">
+      <DependentUpon>ItemUserControl.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -99,6 +109,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\loader.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ChaosOrb.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ExaltedOrb.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

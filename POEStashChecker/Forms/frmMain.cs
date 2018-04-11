@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace POEStashChecker
+namespace POEStashChecker.Forms
 {
     public partial class frmMain : Form
     {

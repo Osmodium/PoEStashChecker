@@ -6,23 +6,10 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
+using POEStashChecker.Data;
 
-namespace POEStashChecker
+namespace POEStashChecker.NinjaDB
 {
-    public class SubDb
-    {
-        public string Name;
-        public string League;
-        public dynamic Db;
-
-        public SubDb(string name, string league, dynamic db)
-        {
-            Name = name;
-            League = league;
-            Db = db;
-        }
-    }
-
     public static class PoENinjaDB
     {
         private const string DB_FILE_PATH = @"NinjaDB";

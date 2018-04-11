@@ -2,7 +2,7 @@
 using System.Dynamic;
 using System.Linq;
 
-namespace POEStashChecker
+namespace POEStashChecker.Utility
 {
     public static class Extensions
     {

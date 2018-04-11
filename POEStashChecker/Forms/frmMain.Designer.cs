@@ -1,4 +1,4 @@
-﻿namespace POEStashChecker
+﻿namespace POEStashChecker.Forms
 {
     partial class frmMain
     {
