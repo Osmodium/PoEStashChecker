@@ -25,5 +25,18 @@ namespace POEStashChecker.Forms
             frmStashInfo stashInfo = new frmStashInfo(txtAccount.Text, (string)cbLeague.SelectedItem, tabIndex, txtPOESESSID.Text);
             stashInfo.Show();
         }
+
+        private void btnCheckAllTabs_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtAccount.Text) ||
+                string.IsNullOrEmpty(txtPOESESSID.Text))
+            {
+                MessageBox.Show("Please provide all neccessary data...", "Insufficient data", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            frmAllItems allItemsInfo = new frmAllItems(txtAccount.Text, (string)cbLeague.SelectedItem, txtPOESESSID.Text);
+            allItemsInfo.Show();
+        }
     }
 }

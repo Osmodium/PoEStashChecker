@@ -1,5 +1,4 @@
-﻿using System.Dynamic;
-using POEStashChecker.NinjaDB;
+﻿using POEStashChecker.NinjaDB;
 using POEStashChecker.Utility;
 
 namespace POEStashChecker.Data
@@ -28,22 +27,24 @@ namespace POEStashChecker.Data
             }
         }
 
-        public string Name;
-        public string Type;
-        public string Category;
-        public bool Identified;
-        public bool Unique;
-        public int MaxLinks;
-        public RectInt Size;
-        public Price Value;
-        public PoEIcon Icon;
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string StashName { get; set; }
+        public string Category { get; set; }
+        public bool Identified { get; set; }
+        public bool Unique { get; set; }
+        public int MaxLinks { get; set; }
+        public RectInt Size { get; set; }
+        public Price Value { get; set; }
+        public PoEIcon Icon { get; set; }
 
-        public Item(dynamic item, string league)
+        public Item(dynamic item, string stashName, string league)
         {
             m_RawName = null;
             m_RawType = null;
             Name = "???";
             Type = null;
+            StashName = null;
             Category = null;
             Identified = false;
             Unique = false;
@@ -51,53 +52,26 @@ namespace POEStashChecker.Data
             Value = new Price(0,0);
             Icon = new PoEIcon(null, 0, 0);
             Size = new RectInt(0, 0);
-            SetData(item, league);
+            SetData(item, stashName, league);
         }
 
-        private void SetData(dynamic item, string league)
+        private void SetData(dynamic item, string stashName, string league)
         {
             Identified = item.identified;
             Unique = item.frameType == 3;
-            MaxLinks = GetMaxLinks(item);
-            if (!string.IsNullOrEmpty((string)item.name))
-                RawName = item.name;
+            MaxLinks = Extensions.GetMaxLinks(item);
             RawType = item.typeLine;
-            Category = GetCategory(item);
+            RawName = item.name;
+            if (string.IsNullOrEmpty((string) item.name))
+            {
+                Name = Type;
+                Type = null;
+            }
+            Category = Extensions.GetCategory(item);
             Value = PoENinjaDB.CheckItemPrice(this, league);
             Size = new RectInt(item.w, item.h);
             Icon = new PoEIcon(item.icon, Size.Width * 16, Size.Height * 16);
-        }
-
-        private string GetCategory(dynamic item)
-        {
-            return ((ExpandoObject) item.category).GetKey(0);
-        }
-
-        private int GetMaxLinks(dynamic item)
-        {
-            int maxLinks = 0;
-            long currentGroup = -1;
-            int currentGroupLinks = 0;
-
-            if (!((ExpandoObject)item).ContainsKey("sockets"))
-                return maxLinks;
-
-            foreach (dynamic socket in item.sockets)
-            {
-                if (socket.group != currentGroup)
-                {
-                    if (currentGroupLinks > maxLinks)
-                        maxLinks = currentGroupLinks;
-                    currentGroupLinks = 0;
-                    currentGroup = socket.group;
-                }
-                ++currentGroupLinks;
-            }
-
-            if (currentGroupLinks > maxLinks)
-                maxLinks = currentGroupLinks;
-
-            return maxLinks;
+            StashName = stashName;
         }
 
         public override string ToString()

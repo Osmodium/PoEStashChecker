@@ -16,14 +16,25 @@ namespace POEStashChecker.NinjaDB
 
         // Gotten from 
         // https://www.reddit.com/r/pathofexiledev/comments/6vxowg/list_of_poeninja_api_links/
-        private const string UNIQUE_ACCESSORY_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetUniqueAccessoryOverview?league={0}";
-        private const string UNIQUE_ARMOUR_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetUniqueArmourOverview?league={0}";
-        private const string UNIQUE_FLASK_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetUniqueFlaskOverview?league={0}";
+        private const string CURRENCY_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetCurrencyOverview?league={0}";
+        private const string FRAGMENT_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetFragmentOverview?league={0}";
+        private const string ESSENCE_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetEssenceOverview?league={0}";
+        private const string DIVINATION_CARDS_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetDivinationCardsOverview?league={0}";
+        private const string PROPHECY_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetProphecyOverview?league={0}";
+        private const string UNIQUE_BEAST_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetUniqueBeastOverview?league={0}";
+        private const string RARE_BEAST_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetRareBeastOverview?league={0}";
+        private const string GEM_SKILL_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetSkillGemOverview?league={0}";
+        private const string UNIQUE_MAP_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetUniqueMapOverview?league={0}";
+        private const string MAP_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetMapOverview?league={0}";
         private const string UNIQUE_JEWEL_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetUniqueJewelOverview?league={0}";
+        private const string UNIQUE_FLASK_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetUniqueFlaskOverview?league={0}";
         private const string UNIQUE_WEAPON_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetUniqueWeaponOverview?league={0}";
-        // Todo add all...
+        private const string UNIQUE_ARMOUR_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetUniqueArmourOverview?league={0}";
+        private const string UNIQUE_ACCESSORY_DATA_ENDPOINT = "http://cdn.poe.ninja/api/Data/GetUniqueAccessoryOverview?league={0}";
 
         private static List<SubDb> m_LoadedDbs = new List<SubDb>();
+
+        private static double m_ExaltedValue;
 
         private static SubDb LoadSubDb(string name, string league)
         {
@@ -58,6 +69,26 @@ namespace POEStashChecker.NinjaDB
             string endPoint = null;
             switch (name)
             {
+                case "currency":
+                {
+                    endPoint = CURRENCY_DATA_ENDPOINT;
+                    break;
+                }
+                case "gems":
+                {
+                    endPoint = GEM_SKILL_DATA_ENDPOINT;
+                    break;
+                }
+                case "cards":
+                {
+                    endPoint = DIVINATION_CARDS_DATA_ENDPOINT;
+                    break;
+                }
+                case "maps":
+                {
+                    endPoint = MAP_DATA_ENDPOINT;
+                    break;
+                }
                 case "accessories":
                 {
                     endPoint = UNIQUE_ACCESSORY_DATA_ENDPOINT;
@@ -109,5 +140,87 @@ namespace POEStashChecker.NinjaDB
             }
             return new Price(0, 0);
         }
+
+        private static void SetExaltedValue(string league)
+        {
+            if (m_ExaltedValue > 0)
+                return;
+
+            SubDb subDb = LoadSubDb("currency", league);
+            foreach (dynamic line in subDb.Db.lines)
+            {
+                if (line.currencyTypeName.Equals("Exalted Orb"))
+                    m_ExaltedValue = line.receive.value;
+            }
+        }
+
+        public static Price CheckItemPrice(DisplayItem item, string league)
+        {
+            SubDb subDb = LoadSubDb(item.Category, league);
+            switch (item.Category)
+            {
+                case "currency":
+                case "fragment":
+                {
+                    SetExaltedValue(league);
+                    foreach (dynamic line in subDb.Db.lines)
+                    {
+                        if (line.currencyTypeName.Equals(item.Name))
+                            return new Price(line.receive.value, line.receive.value / m_ExaltedValue);
+                    }
+                    return new Price(0, 0);
+                }
+                //case "gems":
+                //{
+
+                    
+                //}
+                
+                
+                //case "maps":
+                //{
+
+                    
+                //}
+                case "essence":
+                case "cards":
+                {
+                    foreach (dynamic line in subDb.Db.lines)
+                    {
+                        if (line.name.Equals(item.Name))
+                            return new Price(line.chaosValue, line.exaltedValue);
+                    }
+                    return new Price(0, 0);
+                }
+                case "accessories":
+                case "armour":
+                case "flasks":
+                case "jewels":
+                case "weapons":
+                {
+                    if (!item.Unique)
+                        return new Price(0, 0);
+
+                    foreach (dynamic line in subDb.Db.lines)
+                    {
+                        if (line.name.Equals(item.Name) && item.MaxLinks >= line.links)
+                        {
+                            if (string.IsNullOrEmpty(line.variant))
+                                return new Price(line.chaosValue, line.exaltedValue);
+                            else
+                            {
+                                string variant = (string)line.variant;
+                                int abyssal = int.Parse(variant.Substring(0, variant.IndexOf(' ')));
+                                if (item.AbyssalSockets >= abyssal)
+                                    return new Price(line.chaosValue, line.exaltedValue);
+                            }
+                        }
+                    }
+                    return new Price(0, 0);
+                }
+            }
+            return new Price(0, 0);
+        }
+
     }
 }

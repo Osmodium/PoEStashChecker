@@ -3,16 +3,17 @@ using System.ComponentModel;
 using System.Dynamic;
 using System.Net;
 using System.Windows.Forms;
+using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using POEStashChecker.Data;
+using POEStashChecker.Stash;
 using POEStashChecker.UserControls;
 
 namespace POEStashChecker.Forms
 {
     public partial class frmStashInfo : Form
     {
-        private const string ENDPOINT = "https://pathofexile.com/character-window/get-stash-items?league={0}&tabs={1}&tabIndex={2}&accountName={3}";
-
         private string m_Account;
         private string m_League;
         private int m_TabIndex;
@@ -22,13 +23,7 @@ namespace POEStashChecker.Forms
         private dynamic m_StashData = null;
         private Exception m_LoadException = null;
 
-        private string MergedEndPoint
-        {
-            get
-            {
-                return string.Format(ENDPOINT, m_League, 1, m_TabIndex, m_Account);
-            }
-        }
+        private List<Item> m_Items = new List<Item>();
 
         private frmStashInfo()
         {
@@ -57,12 +52,7 @@ namespace POEStashChecker.Forms
             {
                 try
                 {
-                    using (WebClient wc = new WebClient())
-                    {
-                        wc.Headers.Add(HttpRequestHeader.Referer, "https://www.pathofexile.com");
-                        wc.Headers.Add(HttpRequestHeader.Cookie, $"POESESSID={m_POESESSID}");
-                        m_RawJson = wc.DownloadString(MergedEndPoint);
-                    }
+                    m_RawJson = StashService.GetStashData(m_Account, m_League, m_TabIndex, m_POESESSID);
                 }
                 catch (Exception ex)
                 {
@@ -71,7 +61,7 @@ namespace POEStashChecker.Forms
             };
             bg.ProgressChanged += (sender, args) =>
             {
-                m_LoadException = (Exception) args.UserState;
+                m_LoadException = (Exception)args.UserState;
             };
             bg.RunWorkerCompleted += OnRunWorkerCompleted;
             bg.WorkerReportsProgress = true;
@@ -85,7 +75,6 @@ namespace POEStashChecker.Forms
             {
                 toolStripStatusLabel.Text = "Failed getting data!" + m_LoadException.Message;
                 return;
-
             }
 #if DEBUG
             Console.WriteLine(m_RawJson);
@@ -95,25 +84,30 @@ namespace POEStashChecker.Forms
             flpItems.Controls.Clear();
             flpItems.Visible = true;
 
-            foreach (dynamic tab in m_StashData.tabs)
-            {
-                if (tab.i == m_TabIndex)
-                {
-                    Text += $" / {tab.n}";
-                }
-            }
+            TabInfo tabInfo = StashService.GetTabInfo(m_StashData, m_TabIndex);
+
+            Text += $" / {tabInfo.Name}";
 
             foreach (dynamic item in m_StashData.items)
             {
-                ProcessItemLine(item);
+                ProcessItemLine(item, tabInfo.Name);
             }
+
+            ListItems();
         }
 
-        private void ProcessItemLine(dynamic jsonItem)
+        private void ProcessItemLine(dynamic jsonItem, string tabName)
         {
-            Item item = new Item(jsonItem, m_League);
-            flpItems.Controls.Add(new ItemUserControl(item));
+            Item item = new Item(jsonItem, tabName, m_League);
+            m_Items.Add(item);
         }
-        
+
+        private void ListItems()
+        {
+            foreach (Item item in m_Items.OrderByDescending(i=>i.Value.ChaosOrb))
+            {
+                flpItems.Controls.Add(new ItemUserControl(item));
+            }
+        }
     }
 }
