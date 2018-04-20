@@ -14,7 +14,9 @@ namespace POEStashChecker.UserControls
             lblName.Text = PoEItem.Name;
             lblChaos.Text = $"{PoEItem.Value.ChaosOrb}";
             lblExalted.Text = $"{PoEItem.Value.ExaltedOrb}";
-            pbIcon.Load(item.IconUrl);
+            pbIcon.Width = item.Icon.Size.Width;
+            pbIcon.Height = item.Icon.Size.Height;
+            pbIcon.Load(item.Icon.Url);
         }
     }
 }

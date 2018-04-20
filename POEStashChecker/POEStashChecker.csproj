@@ -49,6 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\PoEIcon.cs" />
+    <Compile Include="Data\Rect.cs" />
     <Compile Include="UserControls\ItemUserControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

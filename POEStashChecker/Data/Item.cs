@@ -34,8 +34,9 @@ namespace POEStashChecker.Data
         public bool Identified;
         public bool Unique;
         public int MaxLinks;
+        public RectInt Size;
         public Price Value;
-        public string IconUrl;
+        public PoEIcon Icon;
 
         public Item(dynamic item, string league)
         {
@@ -48,7 +49,8 @@ namespace POEStashChecker.Data
             Unique = false;
             MaxLinks = 0;
             Value = new Price(0,0);
-            IconUrl = null;
+            Icon = new PoEIcon(null, 0, 0);
+            Size = new RectInt(0, 0);
             SetData(item, league);
         }
 
@@ -62,7 +64,8 @@ namespace POEStashChecker.Data
             RawType = item.typeLine;
             Category = GetCategory(item);
             Value = PoENinjaDB.CheckItemPrice(this, league);
-            IconUrl = item.icon;
+            Size = new RectInt(item.w, item.h);
+            Icon = new PoEIcon(item.icon, Size.Width * 16, Size.Height * 16);
         }
 
         private string GetCategory(dynamic item)
